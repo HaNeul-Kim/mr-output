@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+option java_package = "com.tistory.hskimsky.mapreduce.protobuf";
+option java_outer_classname = "YellowProto";
+
+package com.tistory.hskimsky.mapreduce.protobuf;
+
+message Yellow {
+  optional string vendorID = 1;
+  optional string tpepPickupDatetime = 2;
+  optional string tpepDropoffDatetime = 3;
+  optional int32 passengerCount = 4;
+  optional float tripDistance = 5;
+  optional string rateCodeID = 6;
+  optional string storeAndFwdFlag = 7;
+  optional string puLocationID = 8;
+  optional string doLocationID = 9;
+  optional string paymentType = 10;
+  optional float fareAmount = 11;
+  optional float extra = 12;
+  optional float mtaTax = 13;
+  optional float tipAmount = 14;
+  optional float tollsAmount = 15;
+  optional float improvementSurcharge = 16;
+  optional float totalAmount = 17;
+  optional float congestionSurcharge = 18;
+}

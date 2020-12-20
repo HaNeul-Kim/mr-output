@@ -1,0 +1,24 @@
+namespace com.tistory.hskimsky.mapreduce.flatbuf;
+
+table YellowFlat {
+  vendorID:string;
+  tpepPickupDatetime:string;
+  tpepDropoffDatetime:string;
+  passengerCount:int32;
+  tripDistance:float;
+  rateCodeID:string;
+  storeAndFwdFlag:string;
+  puLocationID:string;
+  doLocationID:string;
+  paymentType:string;
+  fareAmount:float;
+  extra:float;
+  mtaTax:float;
+  tipAmount:float;
+  tollsAmount:float;
+  improvementSurcharge:float;
+  totalAmount:float;
+  congestionSurcharge:float;
+}
+
+root_type YellowFlat;
