@@ -1,6 +1,5 @@
-package com.tistory.hskimsky.mapreduce;
+package com.tistory.hskimsky.mapreduce.writable;
 
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
@@ -11,9 +10,9 @@ import java.io.IOException;
 /**
  * @author hskimsky
  * @version 1.0
- * @since 2020-12-21
+ * @since 2020-12-28
  */
-public abstract class AbstractReducer<T> extends Reducer<LongWritable, BytesWritable, Text, NullWritable> {
+public class WritableReducer extends Reducer<LongWritable, YellowWritable, Text, NullWritable> {
 
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
@@ -24,16 +23,13 @@ public abstract class AbstractReducer<T> extends Reducer<LongWritable, BytesWrit
     context.getCounter("CUSTOM", "RED_READ_FILE").increment(1);
   }
 
-  protected abstract T getObject(byte[] value);
-
   @Override
-  protected void reduce(LongWritable key, Iterable<BytesWritable> values, Context context) throws IOException, InterruptedException {
+  protected void reduce(LongWritable key, Iterable<YellowWritable> values, Context context) throws IOException, InterruptedException {
     context.getCounter("CUSTOM", "RED_READ_GROUP").increment(1);
     long count = 0;
-    for (BytesWritable value : values) {
+    for (YellowWritable value : values) {
       context.getCounter("CUSTOM", "RED_READ_RECORD").increment(1);
-      T object = this.getObject(value.copyBytes());
-      if (object != null) {
+      if (value != null) {
         count++;
       }
     }

@@ -1,22 +1,20 @@
-package com.tistory.hskimsky.mapreduce;
+package com.tistory.hskimsky.mapreduce.writable;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.DistributedFileSystem;
-import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.compress.SnappyCodec;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.MRJobConfig;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +23,25 @@ import java.io.IOException;
 /**
  * @author hskimsky
  * @version 1.0
- * @since 2020-12-21
+ * @since 2020-12-28
  */
-public abstract class AbstractDriver extends Configured implements Tool {
+public class WritableDriver extends Configured implements Tool {
 
-  private static final Logger logger = LoggerFactory.getLogger(AbstractDriver.class);
+  private static final Logger logger = LoggerFactory.getLogger(WritableDriver.class);
 
-  protected abstract String getJobName();
+  public static final String DRIVER_NAME = "writable";
 
-  protected abstract Class<?> getDriverClass();
+  public static void main(String[] args) throws Exception {
+    if (args.length < 1) {
+      printUsage();
+      System.exit(1);
+    }
+    System.exit(ToolRunner.run(new WritableDriver(), args));
+  }
 
-  protected abstract Class<? extends Mapper<LongWritable, Text, LongWritable, BytesWritable>> getMapperClass();
-
-  protected abstract Class<? extends Reducer<LongWritable, BytesWritable, Text, NullWritable>> getReducerClass();
+  private static void printUsage() {
+    System.out.println("yarn jar mr-output-1.0-SNAPSHOT.jar " + DRIVER_NAME + " <INPUT_PATH> <OUTPUT_PATH>");
+  }
 
   @Override
   public int run(String[] args) throws Exception {
@@ -78,25 +82,25 @@ public abstract class AbstractDriver extends Configured implements Tool {
   }
 
   protected Job getJob(Configuration conf, Path inputPath, Path outputPath, int tasks) throws IOException {
-    Job job = Job.getInstance(conf, this.getJobName());
-    job.setJarByClass(this.getDriverClass());
+    Job job = Job.getInstance(conf, DRIVER_NAME);
+    job.setJarByClass(WritableDriver.class);
     // input, output
     TextInputFormat.addInputPath(job, inputPath);
     TextOutputFormat.setOutputPath(job, outputPath);
     job.setInputFormatClass(TextInputFormat.class);
     job.setMapOutputKeyClass(LongWritable.class);
-    job.setMapOutputValueClass(BytesWritable.class);
+    job.setMapOutputValueClass(YellowWritable.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(NullWritable.class);
     job.setOutputFormatClass(TextOutputFormat.class);
 
     // mapper
-    job.setMapperClass(this.getMapperClass());
+    job.setMapperClass(WritableMapper.class);
     // combiner
     // partitioner
     // reducer
     job.setNumReduceTasks(tasks);
-    job.setReducerClass(this.getReducerClass());
+    job.setReducerClass(WritableReducer.class);
     return job;
   }
 }
