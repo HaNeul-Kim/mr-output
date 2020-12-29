@@ -447,3 +447,39 @@ hdfs dfs -put yellow_tripdata_20* /data/trip
 ```
 
 schema 는 [여기](https://www1.nyc.gov/assets/tlc/downloads/pdf/data_dictionary_trip_records_yellow.pdf)
+
+## MR 실행
+
+```shell
+yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver plain       /data/trip /data/trip_plain       25 5120 2048 0.9
+yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver mapcompress /data/trip /data/trip_mapcompress 25 5120 2048 0.9
+yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver writable    /data/trip /data/trip_writable    25 5120 2048 0.9
+yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver protobuf    /data/trip /data/trip_protobuf    25 5120 2048 0.9
+yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver flatbuf     /data/trip /data/trip_flatbuf     25 5120 2048 0.9
+```
+
+## Counter screenshot
+
+![elapsed_seconds.png](src/main/resources/screenshot/elapsed_seconds.png)
+
+![avg_map_seconds.png](src/main/resources/screenshot/avg_map_seconds.png)
+
+![avg_shuffle_seconds.png](src/main/resources/screenshot/avg_shuffle_seconds.png)
+
+![avg_merge_seconds.png](src/main/resources/screenshot/avg_merge_seconds.png)
+
+![avg_reduce_seconds.png](src/main/resources/screenshot/avg_reduce_seconds.png)
+
+![map_output_materialized_bytes.png](src/main/resources/screenshot/map_output_materialized_bytes.png)
+
+![map_physical_memory_snapshot.png](src/main/resources/screenshot/map_physical_memory_snapshot.png)
+
+![reduce_physical_memory_snapshot.png](src/main/resources/screenshot/reduce_physical_memory_snapshot.png)
+
+![map_total_committed_heap_usage.png](src/main/resources/screenshot/map_total_committed_heap_usage.png)
+
+![reduce_total_committed_heap_usage.png](src/main/resources/screenshot/reduce_total_committed_heap_usage.png)
+
+![map_virtual_memory_snapshot.png](src/main/resources/screenshot/map_virtual_memory_snapshot.png)
+
+![reduce_virtual_memory_snapshot.png](src/main/resources/screenshot/reduce_virtual_memory_snapshot.png)
