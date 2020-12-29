@@ -1,5 +1,14 @@
 # mr-output
 
+* MR 에선 Mapper 와 Reducer 모두 다른 process 이기에 서로 데이터를 주고받기 위해서는 SerDe(Serialization/Deserialization) 작업이 필수임
+  * 어떻게 Serialization 하고 어떻게 Deserialization 할지는 개발자가 정하면 되긴 함
+* 개발자는 schema 만 정해주고 library 에서 그 schema 에 맞게 SerDe 를 해주는 것이 google 에서 만든 protocol buffer 임
+* 그러나 protocol buffer 는 Deserialization 단계에서 byte[] 를 다시 JavaObject 로 변환하기 때문에 메모리를 많이 소비함
+* spark 에서는 scala 와 python 간에 data 변환을 apache arrow 를 이용하여 고속화 했다고 함
+* apache arrow 는 왜 빠른지 살펴보니 flat buffer 를 사용한다 함
+* google 에서 만든 flat buffer 라는 library 는 태생이 게임엔진에서 빠른 데이터 전송을 위한 library 라고 함
+* Deserialization 단계에서 byte[] 를 다시 Object 로 변환하는 작업 없이 byte[] 에서 읽기 때문에 메모리를 적게 쓴다고 함
+
 ## flat buffer
 
 ```shell
@@ -450,6 +459,8 @@ schema 는 [여기](https://www1.nyc.gov/assets/tlc/downloads/pdf/data_dictionar
 
 ## MR 실행
 
+input data 는 yellow_tripdata 2017-01 ~ 2020-06 총 26.5 G
+
 ```shell
 yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver plain       /data/trip /data/trip_plain       25 5120 2048 0.9
 yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriver mapcompress /data/trip /data/trip_mapcompress 25 5120 2048 0.9
@@ -483,3 +494,13 @@ yarn jar mr-output-1.0-SNAPSHOT.jar com.tistory.hskimsky.mapreduce.MapReduceDriv
 ![map_virtual_memory_snapshot.png](src/main/resources/screenshot/map_virtual_memory_snapshot.png)
 
 ![reduce_virtual_memory_snapshot.png](src/main/resources/screenshot/reduce_virtual_memory_snapshot.png)
+
+## 결론
+
+데이터 사이즈가 크지 않고(26.5 GB) reducer 가 25개 뿐이었고 용량이 더 커진다면 결과는 달라질 수 있다
+
+* map output 이 protocol buffer 에 비해서 높기 때문에 reducer 단계에서 shuffle 이 많았음
+* 하지만 reduce 시간은 줄어들었음
+* reducer 단계에서 사용하는 memory 도 줄어들었음
+* schema file 로부터 생성되는 java file 크기도 1/8 정도로 줄어들었음
+  * 78100 -> 9197
